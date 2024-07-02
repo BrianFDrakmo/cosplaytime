@@ -64,6 +64,9 @@ class Catalogo:
 #-------------------------------------------------
 # INICIA EL DESARROLLO DE LA BASE DE DATOS -------
 #-------------------------------------------------
+
+# Define una lista para almacenar los productos
+
 # Agregar un producto (create)
 
 def agregar_producto(self, descripcion, cantidad, precio, imagen):
@@ -79,15 +82,6 @@ def agregar_producto(self, descripcion, cantidad, precio, imagen):
 def consultar_producto(self, codigo):
     self.cursor.execute(f"SELECT * FROM productos WHERE codigo = {codigo}")
     return self.cursor.fetchone()
-    
-# Modifica un producto
-
-def modificar_producto(self, codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, nuevo_proveedor):
-        sql = "UPDATE productos SET descripcion = %s, cantidad = %s, precio = %s, imagen_url = %s, WHERE codigo = %s"
-        valores = (nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, nuevo_proveedor, codigo)
-        self.cursor.execute(sql, valores)
-        self.conn.commit()
-        return self.cursor.rowcount > 0
 
 # Mostrar por pantalla las caracteristicas del producto
 
@@ -102,7 +96,18 @@ def mostrar_producto(self, codigo):
         print(f"Imagen.....: {producto['imagen']}")
         print("-" * 50)
     else:
-        print("Producto no encontrado.")
+        print("Producto no encontrado.")    
+        
+# Modifica un producto
+
+def modificar_producto(self, codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen):
+        sql = "UPDATE productos SET descripcion = %s, cantidad = %s, precio = %s, imagen_url = %s, WHERE codigo = %s"
+        valores = (nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, codigo)
+        self.cursor.execute(sql, valores)
+        self.conn.commit()
+        return self.cursor.rowcount > 0
+
+
 
 # Muestra la lista de productos
 
@@ -123,10 +128,9 @@ def eliminar_producto(self, codigo):
 # Cuerpo del programa ------------------------------------
 #---------------------------------------------------------
 
-catalogo = Catalogo(host='briangfunes.mysql.pythonanywhere-services.com', user='briangfunes', password='', database='briangfunes$default')
+catalogo = Catalogo(host='briangfunes.mysql.pythonanywhere-services.com', user='briangfunes', password='Asdbeta23', database='briangfunes$miapp')
 
 # Carpeta para guardar imagenes
-#ruta_destino = './static/imagenes/'
 
 ruta_destino = '/home/briangfunes/mysite/static/imagenes/'
 
@@ -157,7 +161,7 @@ def agregar_producto():
     nombre_base, extension = os.path.splitext(nombre_imagen) 
     nombre_imagen = f"{nombre_base}_{int(time.time())}{extension}" 
 
-    nuevo_codigo = catalogo.agregar_producto(descripcion, cantidad, precio, nombre_imagen, proveedor)
+    nuevo_codigo = catalogo.agregar_producto(descripcion, cantidad, precio, nombre_imagen)
     if nuevo_codigo:    
         imagen.save(os.path.join(ruta_destino, nombre_imagen))
         return jsonify({"mensaje": "Producto agregado correctamente.", "codigo": nuevo_codigo, "imagen": nombre_imagen}), 201
@@ -198,7 +202,7 @@ def modificar_producto(codigo):
             nombre_imagen = producto["imagen_url"]
 
    # Se llama al método modificar_producto pasando el codigo del producto y los nuevos datos.
-    if catalogo.modificar_producto(codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nombre_imagen):
+    if catalogo.modificar_producto(codigo, nueva_descripcion, nueva_cantidad, nuevo_precio):
         return jsonify({"mensaje": "Producto modificado"}), 200
     else:
         return jsonify({"mensaje": "Producto no encontrado"}), 403
