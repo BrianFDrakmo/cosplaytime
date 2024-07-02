@@ -64,10 +64,6 @@ class Catalogo:
 #-------------------------------------------------
 # INICIA EL DESARROLLO DE LA BASE DE DATOS -------
 #-------------------------------------------------
-
-# Define una lista para almacenar los productos
-productos = []
-
 # Agregar un producto (create)
 
 def agregar_producto(self, descripcion, cantidad, precio, imagen):
