@@ -154,7 +154,6 @@ def agregar_producto():
     cantidad = request.form['cantidad']
     precio = request.form['precio']
     imagen = request.files['imagen']
-    proveedor = request.form['proveedor']  
     nombre_imagen = ""
 
     # Genero el nombre de la imagen
@@ -175,7 +174,6 @@ def modificar_producto(codigo):
     nueva_descripcion = request.form.get("descripcion")
     nueva_cantidad = request.form.get("cantidad")
     nuevo_precio = request.form.get("precio")
-    nuevo_proveedor = request.form.get("proveedor")
     
     # Verifica si se proporcionó una nueva imagen
     if 'imagen' in request.files:
@@ -204,7 +202,7 @@ def modificar_producto(codigo):
             nombre_imagen = producto["imagen_url"]
 
    # Se llama al método modificar_producto pasando el codigo del producto y los nuevos datos.
-    if catalogo.modificar_producto(codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nombre_imagen, nuevo_proveedor):
+    if catalogo.modificar_producto(codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nombre_imagen):
         return jsonify({"mensaje": "Producto modificado"}), 200
     else:
         return jsonify({"mensaje": "Producto no encontrado"}), 403
