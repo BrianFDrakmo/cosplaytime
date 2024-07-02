@@ -132,7 +132,7 @@ catalogo = Catalogo(host='briangfunes.mysql.pythonanywhere-services.com', user='
 # Carpeta para guardar imagenes
 #ruta_destino = './static/imagenes/'
 
-ruta_destino = '/home/briangfunes/static/imagenes/'
+ruta_destino = '/home/briangfunes/mysite/static/imagenes/'
 
 @app.route("/productos", methods=["GET"])
 def listar_productos():
