@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modificar Producto 🚀</title>
+    <title>Modificar Productos Cosplays</title>
     <link rel="stylesheet" href="./static/css/estilos.css">
 </head>
 
@@ -19,7 +19,7 @@
     <div class="logo-centrado">
         <img class="logo-desarrollo" src="./static/imagenes/cosplay-logo-interview.png" alt="logo zona">
     </div>
-    <h1>Modificar Productos del Inventario</h1><br>
+    <h1>Modificar Productos del Cosplays</h1><br>
 
     <!-- Contenedor principal que será controlado por JavaScript. Este contenedor tendrá dos formularios. -->
     <div id="app">
@@ -67,7 +67,6 @@
         let descripcion = '';
         let cantidad = '';
         let precio = '';
-        let proveedor = '';
         let imagen_url = '';
         let imagenSeleccionada = null;
         let imagenUrlTemp = null;
@@ -93,7 +92,6 @@
                     descripcion = data.descripcion;
                     cantidad = data.cantidad;
                     precio = data.precio;
-                    proveedor = data.proveedor;
                     imagen_url = data.imagen_url;
                     mostrarDatosProducto = true; //Activa la vista del segundo formulario
                     mostrarFormulario();
@@ -145,7 +143,6 @@
             formData.append('codigo', codigo);
             formData.append('descripcion', document.getElementById('descripcionModificar').value);
             formData.append('cantidad', document.getElementById('cantidadModificar').value);
-            formData.append('proveedor', document.getElementById('proveModificar').value);
             formData.append('precio', document.getElementById('precioModificar').value);
 
             // Si se ha seleccionado una imagen nueva, la añade al formData. 
@@ -193,7 +190,6 @@
             descripcion = '';
             cantidad = '';
             precio = '';
-            proveedor = '';
             imagen_url = '';
             imagenSeleccionada = null;
             imagenUrlTemp = null;
