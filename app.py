@@ -50,11 +50,11 @@ class Catalogo:
                 raise err
             
         self.cursor.execute(('''CREATE TABLE IF NOT EXISTS productos ( 
-            codigo INT AUTO_INCREMENT PRIMARY KEY, 
-            descripcion VARCHAR(255) NOT NULL,
-            cantidad INT NOT NULL,
-            precio DECIMAL(10, 2) NOT NULL,
-            imagen_url VARCHAR(255))'''))
+                codigo INT AUTO_INCREMENT PRIMARY KEY, 
+                descripcion VARCHAR(255) NOT NULL,
+                cantidad INT NOT NULL,
+                precio DECIMAL(10, 2) NOT NULL,
+                imagen_url VARCHAR(255))'''))
         self.conn.commit()
 
         # Cierra el cursos inicial y abre uno nuevo con el parámetro dictionary = True
