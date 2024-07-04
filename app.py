@@ -111,7 +111,7 @@ class Catalogo:
 # Crear una instancia de la clase Catalogo
 catalogo = Catalogo(host='briangfunes.mysql.pythonanywhere-services.com', user='briangfunes', password='Asdbeta23', database='briangfunes$miapp')
 
-ruta_destino = '/home/briangfunes/mysite/imagenes/'
+ruta_destino = '/home/briangfunes/mysite/static/imagenes/'
 
 @app.route("/productos", methods=["GET"])
 def listar_productos():
