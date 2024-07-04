@@ -1,27 +1,36 @@
-#--------------------------------------------------------------------
-# Instalar con pip install Flask
+#------------------------------------------------------------
+# Instalar Flask
 from flask import Flask, request, jsonify
 
-# Instalar con pip install flask-cors
+# Instalar Flask-cors
+
 from flask_cors import CORS
 
-# Instalar con pip install mysql-connector-python
+# Instalar MYSQL
+
 import mysql.connector
 
-# Si es necesario, pip install Werkzeug
+# Instalar Werkzeug
+
 from werkzeug.utils import secure_filename
 
-# No es necesario instalar, es parte del sistema standard de Python
+# Importar 
+
 import os
 import time
-#--------------------------------------------------------------------
+
+#---------------------------------------------------------
 
 app = Flask(__name__)
-CORS(app)  # Esto habilitará CORS para todas las rutas
+CORS(app)
+
+#---------------------------------------------------------
 
 class Catalogo:
-    #----------------------------------------------------------------
-    # Constructor de la clase
+    #---------------------------------------------------------
+    # Constructor de la clase e inicio con MySQL -------------
+    #---------------------------------------------------------
+
     def __init__(self, host, user, password, database):
         self.conn = mysql.connector.connect(
             host=host,
@@ -29,7 +38,7 @@ class Catalogo:
             password=password
         )
         self.cursor = self.conn.cursor()
-        # Intentamos seleccionar la base de datos
+        # Intenta seleccionar la base de datos
         try:
             self.cursor.execute(f"USE {database}")
         except mysql.connector.Error as err:
@@ -39,66 +48,80 @@ class Catalogo:
                 self.conn.database = database
             else:
                 raise err
-
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS productos (
-            codigo INT AUTO_INCREMENT PRIMARY KEY,
+            
+        self.cursor.execute(('''CREATE TABLE IF NOT EXISTS productos ( 
+            codigo INT AUTO_INCREMENT PRIMARY KEY, 
             descripcion VARCHAR(255) NOT NULL,
             cantidad INT NOT NULL,
             precio DECIMAL(10, 2) NOT NULL,
-            imagen_url VARCHAR(255),
-            proveedor INT(4))''')
+            imagen_url VARCHAR(255))'''))
         self.conn.commit()
-        
-        # Cerrar el cursor inicial y abrir uno nuevo con el parámetro dictionary=True
+
+        # Cierra el cursos inicial y abre uno nuevo con el parámetro dictionary = True
         self.cursor.close()
         self.cursor = self.conn.cursor(dictionary=True)
-
-    def listar_productos(self):
-        self.cursor.execute("SELECT * FROM productos")
-        productos = self.cursor.fetchall()
-        return productos
-    
-    def consultar_producto(self, codigo):
-        # Consultamos un producto a partir de su código
-        self.cursor.execute(f"SELECT * FROM productos WHERE codigo = {codigo}")
-        return self.cursor.fetchone()
-
-    def mostrar_producto(self, codigo):
-        # Mostramos los datos de un producto a partir de su código
-        producto = self.consultar_producto(codigo)
-        if producto:
-            print("-" * 40)
-            print(f"Código.....: {producto['codigo']}")
-            print(f"Descripción: {producto['descripcion']}")
-            print(f"Cantidad...: {producto['cantidad']}")
-            print(f"Precio.....: {producto['precio']}")
-            print(f"Imagen.....: {producto['imagen_url']}")
-            print(f"Proveedor..: {producto['proveedor']}")
-            print("-" * 40)
-        else:
-            print("Producto no encontrado.")
-
-    # Agregar un producto (create)
-    def agregar_producto(self, descripcion, cantidad, precio, imagen, proveedor):
         
-        sql = "INSERT INTO productos (descripcion, cantidad, precio, imagen_url, proveedor) VALUES (%s, %s, %s, %s, %s)"
-        valores = (descripcion, cantidad, precio, imagen, proveedor)
+#-------------------------------------------------
+# INICIA EL DESARROLLO DE LA BASE DE DATOS -------
+#-------------------------------------------------
+
+# Define una lista para almacenar los productos
+
+# Agregar un producto (create)
+
+    def agregar_producto(self, descripcion, cantidad, precio, imagen):
+
+        sql = "INSERT INTO productos (descripcion, cantidad, precio, imagen_url) VALUES (%s,%s,%s,%s)"
+        valores = (descripcion, cantidad, precio, imagen)
         self.cursor.execute(sql, valores)
         self.conn.commit()
         return self.cursor.lastrowid
 
-    def modificar_producto(self, codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, nuevo_proveedor):
-        sql = "UPDATE productos SET descripcion = %s, cantidad = %s, precio = %s, imagen_url = %s, proveedor = %s WHERE codigo = %s"
-        valores = (nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, nuevo_proveedor, codigo)
-        self.cursor.execute(sql, valores)
-        self.conn.commit()
-        return self.cursor.rowcount > 0
+# Consulta el código del producto
+
+    def consultar_producto(self, codigo):
+        self.cursor.execute(f"SELECT * FROM productos WHERE codigo = {codigo}")
+        return self.cursor.fetchone()
+
+# Mostrar por pantalla las caracteristicas del producto
+
+    def mostrar_producto(self, codigo):
+        producto = self.consultar_producto(codigo)
+        if producto:
+            print("-" * 50)
+            print(f"Codigo.....: {producto['codigo']}")
+            print(f"Descripcion: {producto['descripcion']}")
+            print(f"Cantidad...: {producto['cantidad']}")
+            print(f"Precio.....: {producto['precio']}")
+            print(f"Imagen.....: {producto['imagen']}")
+            print("-" * 50)
+        else:
+            print("Producto no encontrado.")    
+        
+# Modifica un producto
+
+    def modificar_producto(self, codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen):
+            sql = "UPDATE productos SET descripcion = %s, cantidad = %s, precio = %s, imagen_url = %s, WHERE codigo = %s"
+            valores = (nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, codigo)
+            self.cursor.execute(sql, valores)
+            self.conn.commit()
+            return self.cursor.rowcount > 0
+
+
+
+# Muestra la lista de productos
+
+    def listar_productos(self):
+            self.cursor.execute("SELECT * FROM productos")
+            productos = self.cursor.fetchall()
+            return productos
+
+# Eliminar producto
 
     def eliminar_producto(self, codigo):
-        # Eliminamos un producto de la tabla a partir de su código
-        self.cursor.execute(f"DELETE FROM productos WHERE codigo = {codigo}")
-        self.conn.commit()
-        return self.cursor.rowcount > 0
+            self.cursor.execute(f"DELETE FROM productos WHERE codigo = {codigo}")
+            self.conn.commit()
+            return self.cursor.rowcount > 0
 
 #--------------------------------------------------------------------
 # Cuerpo del programa
