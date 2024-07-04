@@ -452,11 +452,9 @@ button:hover {
     padding: 8px;
     margin:4px;
     background-color: #007bff;
-    color: #1d1a39;
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
-    font-size: 85%;
-    font-weight: 800;
 }
