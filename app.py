@@ -1,36 +1,27 @@
-#------------------------------------------------------------
-# Instalar Flask
+#--------------------------------------------------------------------
+# Instalar con pip install Flask
 from flask import Flask, request, jsonify
 
-# Instalar Flask-cors
-
+# Instalar con pip install flask-cors
 from flask_cors import CORS
 
-# Instalar MYSQL
-
+# Instalar con pip install mysql-connector-python
 import mysql.connector
 
-# Instalar Werkzeug
-
+# Si es necesario, pip install Werkzeug
 from werkzeug.utils import secure_filename
 
-# Importar 
-
+# No es necesario instalar, es parte del sistema standard de Python
 import os
 import time
-
-#---------------------------------------------------------
+#--------------------------------------------------------------------
 
 app = Flask(__name__)
-CORS(app)
-
-#---------------------------------------------------------
+CORS(app)  # Esto habilitará CORS para todas las rutas
 
 class Catalogo:
-    #---------------------------------------------------------
-    # Constructor de la clase e inicio con MySQL -------------
-    #---------------------------------------------------------
-
+    #----------------------------------------------------------------
+    # Constructor de la clase
     def __init__(self, host, user, password, database):
         self.conn = mysql.connector.connect(
             host=host,
@@ -38,7 +29,7 @@ class Catalogo:
             password=password
         )
         self.cursor = self.conn.cursor()
-        # Intenta seleccionar la base de datos
+        # Intentamos seleccionar la base de datos
         try:
             self.cursor.execute(f"USE {database}")
         except mysql.connector.Error as err:
@@ -48,91 +39,76 @@ class Catalogo:
                 self.conn.database = database
             else:
                 raise err
-            
-        self.cursor.execute(('''CREATE TABLE IF NOT EXISTS productos ( 
-            codigo INT AUTO_INCREMENT PRIMARY KEY, 
+
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS productos (
+            codigo INT AUTO_INCREMENT PRIMARY KEY,
             descripcion VARCHAR(255) NOT NULL,
             cantidad INT NOT NULL,
             precio DECIMAL(10, 2) NOT NULL,
-            imagen_url VARCHAR(255))'''))
+            imagen_url VARCHAR(255),
+            proveedor INT(4))''')
         self.conn.commit()
-
-        # Cierra el cursos inicial y abre uno nuevo con el parámetro dictionary = True
+        
+        # Cerrar el cursor inicial y abrir uno nuevo con el parámetro dictionary=True
         self.cursor.close()
         self.cursor = self.conn.cursor(dictionary=True)
+
+    def listar_productos(self):
+        self.cursor.execute("SELECT * FROM productos")
+        productos = self.cursor.fetchall()
+        return productos
+    
+    def consultar_producto(self, codigo):
+        # Consultamos un producto a partir de su código
+        self.cursor.execute(f"SELECT * FROM productos WHERE codigo = {codigo}")
+        return self.cursor.fetchone()
+
+    def mostrar_producto(self, codigo):
+        # Mostramos los datos de un producto a partir de su código
+        producto = self.consultar_producto(codigo)
+        if producto:
+            print("-" * 40)
+            print(f"Código.....: {producto['codigo']}")
+            print(f"Descripción: {producto['descripcion']}")
+            print(f"Cantidad...: {producto['cantidad']}")
+            print(f"Precio.....: {producto['precio']}")
+            print(f"Imagen.....: {producto['imagen_url']}")
+            print(f"Proveedor..: {producto['proveedor']}")
+            print("-" * 40)
+        else:
+            print("Producto no encontrado.")
+
+    # Agregar un producto (create)
+    def agregar_producto(self, descripcion, cantidad, precio, imagen, proveedor):
         
-#-------------------------------------------------
-# INICIA EL DESARROLLO DE LA BASE DE DATOS -------
-#-------------------------------------------------
+        sql = "INSERT INTO productos (descripcion, cantidad, precio, imagen_url, proveedor) VALUES (%s, %s, %s, %s, %s)"
+        valores = (descripcion, cantidad, precio, imagen, proveedor)
+        self.cursor.execute(sql, valores)
+        self.conn.commit()
+        return self.cursor.lastrowid
 
-# Define una lista para almacenar los productos
-
-# Agregar un producto (create)
-
-def agregar_producto(self, descripcion, cantidad, precio, imagen):
-
-    sql = "INSERT INTO productos (descripcion, cantidad, precio, imagen_url) VALUES (%s,%s,%s,%s)"
-    valores = (descripcion, cantidad, precio, imagen)
-    self.cursor.execute(sql, valores)
-    self.conn.commit()
-    return self.cursor.lastrowid
-
-# Consulta el código del producto
-
-def consultar_producto(self, codigo):
-    self.cursor.execute(f"SELECT * FROM productos WHERE codigo = {codigo}")
-    return self.cursor.fetchone()
-
-# Mostrar por pantalla las caracteristicas del producto
-
-def mostrar_producto(self, codigo):
-    producto = self.consultar_producto(codigo)
-    if producto:
-        print("-" * 50)
-        print(f"Codigo.....: {producto['codigo']}")
-        print(f"Descripcion: {producto['descripcion']}")
-        print(f"Cantidad...: {producto['cantidad']}")
-        print(f"Precio.....: {producto['precio']}")
-        print(f"Imagen.....: {producto['imagen']}")
-        print("-" * 50)
-    else:
-        print("Producto no encontrado.")    
-        
-# Modifica un producto
-
-def modificar_producto(self, codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen):
-        sql = "UPDATE productos SET descripcion = %s, cantidad = %s, precio = %s, imagen_url = %s, WHERE codigo = %s"
-        valores = (nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, codigo)
+    def modificar_producto(self, codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, nuevo_proveedor):
+        sql = "UPDATE productos SET descripcion = %s, cantidad = %s, precio = %s, imagen_url = %s, proveedor = %s WHERE codigo = %s"
+        valores = (nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_imagen, nuevo_proveedor, codigo)
         self.cursor.execute(sql, valores)
         self.conn.commit()
         return self.cursor.rowcount > 0
 
-
-
-# Muestra la lista de productos
-
-def listar_productos(self):
-        self.cursor.execute("SELECT * FROM productos")
-        productos = self.cursor.fetchall()
-        return productos
-
-# Eliminar producto
-
-def eliminar_producto(self, codigo):
+    def eliminar_producto(self, codigo):
         # Eliminamos un producto de la tabla a partir de su código
         self.cursor.execute(f"DELETE FROM productos WHERE codigo = {codigo}")
         self.conn.commit()
         return self.cursor.rowcount > 0
-    
-#---------------------------------------------------------
-# Cuerpo del programa ------------------------------------
-#---------------------------------------------------------
 
-catalogo = Catalogo(host='briangfunes.mysql.pythonanywhere-services.com', user='briangfunes', password='Asdbeta23', database='briangfunes$miapp')
+#--------------------------------------------------------------------
+# Cuerpo del programa
+#--------------------------------------------------------------------
+# Crear una instancia de la clase Catalogo
+catalogo = Catalogo(host='juanpablocodo.mysql.pythonanywhere-services.com', user='juanpablocodo', password='root-123456', database='juanpablocodo$miapp')
 
-# Carpeta para guardar imagenes
-
-ruta_destino = '/home/briangfunes/mysite/static/imagenes/'
+# Carpeta para guardar las imagenes
+# ruta_destino = './static/imagenes/'
+ruta_destino = '/home/juanpablocodo/mysite/static/imagenes/'
 
 @app.route("/productos", methods=["GET"])
 def listar_productos():
@@ -146,7 +122,7 @@ def mostrar_producto(codigo):
         return jsonify(producto)
     else:
         return "Producto no encontrado", 404
-    
+
 @app.route("/productos", methods=["POST"])
 def agregar_producto():
     #Recojo los datos del form
@@ -154,6 +130,7 @@ def agregar_producto():
     cantidad = request.form['cantidad']
     precio = request.form['precio']
     imagen = request.files['imagen']
+    proveedor = request.form['proveedor']  
     nombre_imagen = ""
 
     # Genero el nombre de la imagen
@@ -161,7 +138,7 @@ def agregar_producto():
     nombre_base, extension = os.path.splitext(nombre_imagen) 
     nombre_imagen = f"{nombre_base}_{int(time.time())}{extension}" 
 
-    nuevo_codigo = catalogo.agregar_producto(descripcion, cantidad, precio, nombre_imagen)
+    nuevo_codigo = catalogo.agregar_producto(descripcion, cantidad, precio, nombre_imagen, proveedor)
     if nuevo_codigo:    
         imagen.save(os.path.join(ruta_destino, nombre_imagen))
         return jsonify({"mensaje": "Producto agregado correctamente.", "codigo": nuevo_codigo, "imagen": nombre_imagen}), 201
@@ -174,6 +151,7 @@ def modificar_producto(codigo):
     nueva_descripcion = request.form.get("descripcion")
     nueva_cantidad = request.form.get("cantidad")
     nuevo_precio = request.form.get("precio")
+    nuevo_proveedor = request.form.get("proveedor")
     
     # Verifica si se proporcionó una nueva imagen
     if 'imagen' in request.files:
@@ -202,7 +180,7 @@ def modificar_producto(codigo):
             nombre_imagen = producto["imagen_url"]
 
    # Se llama al método modificar_producto pasando el codigo del producto y los nuevos datos.
-    if catalogo.modificar_producto(codigo, nueva_descripcion, nueva_cantidad, nuevo_precio):
+    if catalogo.modificar_producto(codigo, nueva_descripcion, nueva_cantidad, nuevo_precio, nombre_imagen, nuevo_proveedor):
         return jsonify({"mensaje": "Producto modificado"}), 200
     else:
         return jsonify({"mensaje": "Producto no encontrado"}), 403
