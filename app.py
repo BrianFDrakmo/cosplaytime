@@ -138,7 +138,7 @@ def agregar_producto():
     nombre_base, extension = os.path.splitext(nombre_imagen) 
     nombre_imagen = f"{nombre_base}_{int(time.time())}{extension}" 
 
-    nuevo_codigo = catalogo.agregar_producto(descripcion, cantidad, precio, nombre_imagen, proveedor)
+    nuevo_codigo = catalogo.agregar_producto(descripcion, cantidad, precio, nombre_imagen)
     if nuevo_codigo:    
         imagen.save(os.path.join(ruta_destino, nombre_imagen))
         return jsonify({"mensaje": "Producto agregado correctamente.", "codigo": nuevo_codigo, "imagen": nombre_imagen}), 201
